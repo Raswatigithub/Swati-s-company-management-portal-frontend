@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 dotenv.config();
 
@@ -58,13 +59,15 @@ employeeRouter.use('/projects', require('./routes/employee/projects'));
 employeeRouter.use('/stats', require('./routes/employee/stats'));
 app.use('/api/employee', employeeRouter);
 
-// Error Handling Middleware
-app.use((req, res, next) => {
+// Serve Frontend
+const buildPath = path.join(__dirname, '../../client/build');
+app.use(express.static(buildPath));
+
+app.get('*', (req, res) => {
   if (req.originalUrl.startsWith('/api')) {
-    res.status(404).json({ message: `API route ${req.originalUrl} not found` });
-  } else {
-    next();
+    return res.status(404).json({ message: `API route ${req.originalUrl} not found` });
   }
+  res.sendFile(path.join(buildPath, 'index.html'));
 });
 
 app.use((err, req, res, next) => {

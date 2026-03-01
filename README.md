@@ -110,25 +110,21 @@ This project is configured for automated deployment to **Render** via GitHub Act
 1. Log in to [Render](https://render.com).
 2. Click **New +** > **Blueprint**.
 3. Connect your GitHub repository.
-4. Render will automatically detect `render.yaml` and create:
-   - **swatis-company-portal-api** (Backend)
-   - **swatis-company-portal** (Frontend)
+4. Render will automatically detect `render.yaml` and create a single **swatis-company-portal** service that serves both the frontend and backend.
 
 ### 2. Configure Environment Variables on Render
-#### Backend (`swatis-company-portal-api`)
+#### Full Stack App (`swatis-company-portal`)
 - `MONGO_URI`: Your MongoDB Atlas connection string.
 - `JWT_SECRET`: A long random string for token security.
-- `CLIENT_URLS`: The URL of your deployed frontend (e.g., `https://swatis-company-portal.onrender.com`).
+- `CLIENT_URLS`: `https://swatis-company-portal.onrender.com` (or empty if same domain).
 
-#### Frontend (`swatis-company-portal`)
-- `REACT_APP_API_URL`: The URL of your deployed backend followed by `/api` (e.g., `https://swatis-company-portal-api.onrender.com/api`).
+*Note: The frontend is built automatically and served by the Express backend.*
 
 ### 3. GitHub Actions (Auto-Deploy)
 To enable automatic deployment on push:
-1. In Render, go to each service's **Settings** and find the **Deploy Hook** URL.
+1. In Render, go to your service's **Settings** and find the **Deploy Hook** URL.
 2. In your GitHub repository, go to **Settings > Secrets and variables > Actions**.
-3. Add the following secrets:
-   - `RENDER_DEPLOY_HOOK_BACKEND`: The hook URL for the backend service.
-   - `RENDER_DEPLOY_HOOK_FRONTEND`: The hook URL for the frontend service.
+3. Add the following secret:
+   - `RENDER_DEPLOY_HOOK_BACKEND`: The hook URL for the service.
 
 Now, every push to the `main` branch will trigger a deployment!

@@ -7,33 +7,24 @@ on:
 
 jobs:
   deploy:
-    name: Trigger Deployments
+    name: Trigger Full Stack Deployment
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Deploy Backend
-        if: env.BACKEND_HOOK != ''
+      - name: Deploy Full Stack App
+        if: env.RENDER_HOOK != ''
         env:
-          BACKEND_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
+          RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND || secrets.RENDER_DEPLOY_HOOK }}
         run: |
-          echo "Deploying Swatis Company Portal API..."
-          curl -X POST "$BACKEND_HOOK"
-
-      - name: Deploy Frontend
-        if: env.FRONTEND_HOOK != ''
-        env:
-          FRONTEND_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
-        run: |
-          echo "Deploying Swatis Company Portal Frontend..."
-          curl -X POST "$FRONTEND_HOOK"
+          echo "Deploying Swatis Company Portal (Full Stack)..."
+          curl -X POST "$RENDER_HOOK"
 
       - name: Verify Secret Configuration
-        if: env.BACKEND_HOOK == '' || env.FRONTEND_HOOK == ''
+        if: env.RENDER_HOOK == ''
         env:
-          BACKEND_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
-          FRONTEND_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
+          RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND || secrets.RENDER_DEPLOY_HOOK }}
         run: |
-          echo "::error::Missing RENDER_DEPLOY_HOOK_BACKEND or RENDER_DEPLOY_HOOK_FRONTEND secrets in GitHub."
+          echo "::error::Missing RENDER_DEPLOY_HOOK_BACKEND secret in GitHub."
           exit 1
