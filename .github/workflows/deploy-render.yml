@@ -1,26 +1,39 @@
-name: Deploy To Render
+name: Deploy to Render
 
 on:
-  workflow_dispatch:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
+    name: Trigger Deployments
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger backend deploy
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND != '' }}
-        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}"
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Trigger frontend deploy
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND != '' }}
-        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}"
-
-      - name: Validate deploy hook secrets
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND == '' || secrets.RENDER_DEPLOY_HOOK_FRONTEND == '' }}
+      - name: Deploy Backend
+        if: env.BACKEND_HOOK != ''
+        env:
+          BACKEND_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
         run: |
-          echo "Missing one or both deploy hook secrets:"
-          echo "RENDER_DEPLOY_HOOK_BACKEND"
-          echo "RENDER_DEPLOY_HOOK_FRONTEND"
+          echo "Deploying Swatis Company Portal API..."
+          curl -X POST "$BACKEND_HOOK"
+
+      - name: Deploy Frontend
+        if: env.FRONTEND_HOOK != ''
+        env:
+          FRONTEND_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
+        run: |
+          echo "Deploying Swatis Company Portal Frontend..."
+          curl -X POST "$FRONTEND_HOOK"
+
+      - name: Verify Secret Configuration
+        if: env.BACKEND_HOOK == '' || env.FRONTEND_HOOK == ''
+        env:
+          BACKEND_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
+          FRONTEND_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
+        run: |
+          echo "::error::Missing RENDER_DEPLOY_HOOK_BACKEND or RENDER_DEPLOY_HOOK_FRONTEND secrets in GitHub."
           exit 1
