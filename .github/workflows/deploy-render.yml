@@ -1,0 +1,26 @@
+name: Deploy To Render
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger backend deploy
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND != '' }}
+        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}"
+
+      - name: Trigger frontend deploy
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND != '' }}
+        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}"
+
+      - name: Validate deploy hook secrets
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND == '' || secrets.RENDER_DEPLOY_HOOK_FRONTEND == '' }}
+        run: |
+          echo "Missing one or both deploy hook secrets:"
+          echo "RENDER_DEPLOY_HOOK_BACKEND"
+          echo "RENDER_DEPLOY_HOOK_FRONTEND"
+          exit 1
