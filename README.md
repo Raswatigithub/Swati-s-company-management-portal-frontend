@@ -80,8 +80,8 @@ npm start
 | Role | Email | Password |
 | :--- | :--- | :--- |
 | **Admin** | `admin@swatisoft.com` | `admin123` |
-| **Employee** | `newemployee@swatisoft.com` | `admin123` |
-| **Client** | `ramesh@gmail.com` | `admin123` |
+| **Employee** | `newemployee@swatisoft.com` | `new123` |
+| **Client** | `ramesh@gmail.com` | `ramesh123` |
 
 ## 📁 Folder Structure
 
